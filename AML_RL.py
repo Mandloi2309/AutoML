@@ -102,9 +102,9 @@ class MCDQNWorker(Worker):
 
     def compute(self, config, budget, working_directory, *args, **kwargs):
             """
-            Simple example for a compute function using a feed forward network.
-            It is trained on the MNIST dataset.
-            The input parameter "config" (dictionary) contains the sampled configurations passed by the bohb optimizer
+            Uses two fully connected networks.
+            main net is trained for allocated budget makes at most 200 moves.
+            Returns the average reward.
             """
             self.main_net = self.createNetwork(config)
             ## Clone the network for infrequent weight updates
