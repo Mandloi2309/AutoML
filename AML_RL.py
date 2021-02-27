@@ -165,32 +165,18 @@ class MCDQNWorker(Worker):
             """
             It builds the configuration space with the needed hyperparameters.
             It is easily possible to implement different types of hyperparameters.
-            Beside float-hyperparameters on a log scale, it is also able to handle categorical input parameter.
-            :return: ConfigurationsSpace-Object
             """
             cs = CS.ConfigurationSpace()
-
             lr = CSH.UniformFloatHyperparameter('lr', lower=1e-3, upper=1e-1, default_value='1e-2', log=True)
-
-            # For demonstration purposes, we add different optimizers as categorical hyperparameters.
-            # To show how to use conditional hyperparameters with ConfigSpace, we'll add the optimizers 'Adam' and 'SGD'.
-            # SGD has a different parameter 'momentum'.
             optimizer = CSH.CategoricalHyperparameter('optimizer', ['Adam', 'SGD'])
-
             sgd_momentum = CSH.UniformFloatHyperparameter('sgd_momentum', lower=0.0, upper=0.99, default_value=0.9, log=False)
-
             cs.add_hyperparameters([lr, optimizer, sgd_momentum])
-
             L1 = CSH.UniformIntegerHyperparameter('L1', lower=40, upper=60, default_value=54, log=True)
             L2 = CSH.UniformIntegerHyperparameter('L2', lower=100, upper=130, default_value=128, log=True)
             discount = CSH.UniformFloatHyperparameter('discount', lower=0.5, upper=1, default_value=0.9, log=False)
             DR = CSH.UniformFloatHyperparameter('decay', lower=0.00, upper=0.02, default_value=0.01, log=False)
             EP = CSH.UniformFloatHyperparameter('tradeoff', lower=0.50, upper=0.99, default_value=0.99, log=False)
-
             cs.add_hyperparameters([L1, L2, discount, DR, EP])
-
-            # The hyperparameter sgd_momentum will be used,if the configuration
-            # contains 'SGD' as optimizer.
             cond = CS.EqualsCondition(sgd_momentum, optimizer, 'SGD')
             cs.add_condition(cond)
             return cs
