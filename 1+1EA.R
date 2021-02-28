@@ -68,7 +68,7 @@ GA <- function(IOHproblem){
   while((IOHproblem$target_hit() == 0) && (iterations < budget)){
     iterations = iterations + 1
     children = best_parents
-	parents = mutate_pop(children, mutation_rate = mutation_rate)
+    parents = mutate_pop(children, mutation_rate = mutation_rate)
     parents = rbind(children, parents, deparse.level = 0)
     best_parents = t(as.matrix(tournament(IOHproblem$obj_func, parents, 1)))
 	fitness = append(fitness, eval_population(IOHproblem$obj_func, best_parents))
