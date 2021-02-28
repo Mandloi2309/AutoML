@@ -71,7 +71,7 @@ GA <- function(IOHproblem){
     parents = mutate_pop(children, mutation_rate = mutation_rate)
     parents = rbind(children, parents, deparse.level = 0)
     best_parents = t(as.matrix(tournament(IOHproblem$obj_func, parents, 1)))
-	fitness = append(fitness, eval_population(IOHproblem$obj_func, best_parents))
+    fitness = append(fitness, eval_population(IOHproblem$obj_func, best_parents))
   }
   filename = sub("DIM",IOHproblem$dimension,"F-23-dim-DIM.csv")
   write.table(fitness, filename, append=T, row.names = F, sep='\t', col.names = F)
