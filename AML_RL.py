@@ -38,6 +38,7 @@ class MCDQNWorker(Worker):
             model = models.Sequential()
             model.add(layers.Dense(config['L1'], activation='relu', input_shape=self.env.observation_space.shape))
             model.add(layers.Dense(config['L2'], activation='relu'))
+            model.add(layers.Dense(config['L3'], activation='relu'))
             model.add(layers.Dense(self.env.action_space.n,activation='linear'))
             if config['optimizer'] == 'Adam':
                     optimizer = keras.optimizers.Adam(lr=config['lr'])
@@ -128,7 +129,7 @@ class MCDQNWorker(Worker):
             ## Evaluation Run.
             testScores = []
             testFP = []
-            for i in range(10):
+            for i in range(100):
                 done = False
                 currentState = self.env.reset()
                 score=0
@@ -167,15 +168,16 @@ class MCDQNWorker(Worker):
             It is easily possible to implement different types of hyperparameters.
             """
             cs = CS.ConfigurationSpace()
-            lr = CSH.UniformFloatHyperparameter('lr', lower=1e-3, upper=1e-1, default_value='1e-2', log=True)
+            lr = CSH.UniformFloatHyperparameter('lr', lower=1e-6, upper=1e-2, default_value='1e-2', log=True)
             optimizer = CSH.CategoricalHyperparameter('optimizer', ['Adam', 'SGD'])
             sgd_momentum = CSH.UniformFloatHyperparameter('sgd_momentum', lower=0.0, upper=0.99, default_value=0.9, log=False)
             cs.add_hyperparameters([lr, optimizer, sgd_momentum])
-            L1 = CSH.UniformIntegerHyperparameter('L1', lower=40, upper=60, default_value=54, log=True)
-            L2 = CSH.UniformIntegerHyperparameter('L2', lower=100, upper=130, default_value=128, log=True)
-            discount = CSH.UniformFloatHyperparameter('discount', lower=0.5, upper=1, default_value=0.9, log=False)
-            DR = CSH.UniformFloatHyperparameter('decay', lower=0.00, upper=0.02, default_value=0.01, log=False)
-            EP = CSH.UniformFloatHyperparameter('tradeoff', lower=0.50, upper=0.99, default_value=0.99, log=False)
+            L1 = CSH.UniformIntegerHyperparameter('L1', lower=4, upper=64, default_value=54, log=True)
+            L2 = CSH.UniformIntegerHyperparameter('L2', lower=64, upper=120, default_value=128, log=True)
+            L3 = CSH.UniformIntegerHyperparameter('L2', lower=20, upper=40, default_value=128, log=True)
+            discount = CSH.UniformFloatHyperparameter('discount', lower=0.0, upper=1, default_value=0.9, log=False)
+            DR = CSH.UniformFloatHyperparameter('decay', lower=0.00, upper=0.9, default_value=0.01, log=False)
+            EP = CSH.UniformFloatHyperparameter('tradeoff', lower=0.1, upper=0.99, default_value=0.99, log=False)
             cs.add_hyperparameters([L1, L2, discount, DR, EP])
             cond = CS.EqualsCondition(sgd_momentum, optimizer, 'SGD')
             cs.add_condition(cond)
@@ -184,9 +186,9 @@ class MCDQNWorker(Worker):
 sdir = 'RL_500 '
 NS = hpns.NameServer(run_id='RL', host='127.0.0.1', port=None)
 NS.start()
-min_budget=10
-max_budget=500
-NWorker = 7
+min_budget=50
+max_budget=1000
+NWorker = 10
 workers=[]
 for i in range(NWorker):
     w = MCDQNWorker(nameserver='127.0.0.1', run_id='RL', id=i)
